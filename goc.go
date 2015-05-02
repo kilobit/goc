@@ -4,6 +4,8 @@ import "net/http"
 import "log"
 import "io"
 import "flag"
+import "encoding/csv"
+import "os"
 
 var (
 	root = flag.String("root", "", "Document Root")
@@ -19,6 +21,21 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Hello World!"))
 }
 
+type CSVHandler struct {
+	reader *csv.Reader
+}
+
+func NewCSVHandler (r io.Reader) *CSVHandler {
+	return &CSVHandler{csv.NewReader(r)}
+}
+
+func (csvh *CSVHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+
+	jsone := json.NewEncoder(w)
+	
+	io.WriteString(w, "Hello World! - CSV Style")
+}
+
 func main() {
 
 	mux := http.NewServeMux()
@@ -32,6 +49,8 @@ func main() {
 	mux.HandleFunc("/foo", fooHandler)
 	
 	mux.HandleFunc("/chew", rootHandler)
+
+	mux.Handle("/data", NewCSVHandler(os.Stdin))
 	
 	log.Fatal(http.ListenAndServe(":8080", mux))
 }
