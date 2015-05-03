@@ -6,6 +6,7 @@ import "io"
 import "flag"
 import "encoding/csv"
 import "os"
+import "encoding/json"
 
 var (
 	root = flag.String("root", "", "Document Root")
@@ -32,8 +33,15 @@ func NewCSVHandler (r io.Reader) *CSVHandler {
 func (csvh *CSVHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	jsone := json.NewEncoder(w)
+
+	row, err := csvh.reader.Read()
+	if err != nil {
+		return
+	}
 	
-	io.WriteString(w, "Hello World! - CSV Style")
+	jsone.Encode(row)
+	
+	jsone.Encode([...]string{"Hello", "World!", "CSV", "Style"})
 }
 
 func main() {
