@@ -49,6 +49,8 @@ func (csvh *CSVHandler) readCSVRows() {
 
 func (csvh *CSVHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
+	w.Header().Set("Content-Type", "application/json")
+	
 	jsone := json.NewEncoder(w)
 
 	jsone.Encode(csvh.rows)
