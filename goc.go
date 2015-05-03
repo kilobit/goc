@@ -24,24 +24,34 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 
 type CSVHandler struct {
 	reader *csv.Reader
+	rows [][]string
 }
 
 func NewCSVHandler (r io.Reader) *CSVHandler {
-	return &CSVHandler{csv.NewReader(r)}
+	csvh := &CSVHandler{csv.NewReader(r), [][]string{}}
+
+	csvh.readCSVRows()
+
+	return csvh
+}
+
+func (csvh *CSVHandler) readCSVRows() {
+
+	for {
+		row, err := csvh.reader.Read()
+		if err != nil {
+			return
+		}
+
+		csvh.rows = append(csvh.rows, row)
+	}
 }
 
 func (csvh *CSVHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	jsone := json.NewEncoder(w)
 
-	row, err := csvh.reader.Read()
-	if err != nil {
-		return
-	}
-	
-	jsone.Encode(row)
-	
-	jsone.Encode([...]string{"Hello", "World!", "CSV", "Style"})
+	jsone.Encode(csvh.rows)
 }
 
 func main() {
