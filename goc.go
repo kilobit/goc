@@ -77,8 +77,30 @@ func (csvh *CSVHandler) ReadCSV(w http.ResponseWriter, r *http.Request) {
 
 func (csvh *CSVHandler) WriteCSV(w http.ResponseWriter, r *http.Request) {
 
-	
+	jsond := json.NewDecoder(r.Body)
 
+	// TODO: eliminate this hardcoded buffer size here.
+	var rows [][]string = make([][]string, 1000)
+	err := jsond.Decode(&rows)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		io.WriteString(w, err.Error())
+	}
+
+	err = csvh.writer.WriteAll(rows)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		io.WriteString(w, err.Error())
+	}
+
+	csvh.writer.Flush()
+	err = csvh.writer.Error()
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		io.WriteString(w, err.Error())
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func main() {
