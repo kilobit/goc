@@ -1,5 +1,11 @@
 package main
 
+// TODO: Add stream mode for reading
+// TODO: Implement wt-go
+// TODO: POST Body type handling
+// TODO: Generic method handling
+// TODO: Separate HTTP logic from the CSVHandler logic.
+
 import "net/http"
 import "log"
 import "io"
